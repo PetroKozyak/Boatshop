@@ -32,8 +32,8 @@ class OrderBoat(models.Model):
         db_table = "orders"
 
     boat = models.ForeignKey(Boat, on_delete=models.CASCADE, related_name='orders')
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_order')
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_order')
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}".format(self.boat)
