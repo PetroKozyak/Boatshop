@@ -33,10 +33,20 @@ class BoatSerializer(serializers.ModelSerializer):
 class OrderBoatSerializer(serializers.ModelSerializer,):
     buyer = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
 
+    def get_extra_kwargs(self):
+        extra_kwargs = super(OrderBoatSerializer, self).get_extra_kwargs()
+        action = self.context['view'].action
+
+        if action in ['update', 'partial_update'] and self.instance.boat.owner == self.context['request'].user:
+            kwargs = extra_kwargs.get('approved', {})
+            kwargs['read_only'] = False
+            extra_kwargs['approved'] = kwargs
+
+        return extra_kwargs
+
     def to_representation(self, instance):
         data = super(OrderBoatSerializer, self).to_representation(instance)
         data['boat'] = BoatSerializer(instance.boat).data
-        data['approved'] = instance.approved
         return data
 
     def __init__(self, *args, **kwargs):
@@ -46,8 +56,14 @@ class OrderBoatSerializer(serializers.ModelSerializer,):
 
     class Meta:
         model = OrderBoat
-        fields = ("id", "boat", "buyer")
+        fields = ("id", "boat", "buyer", "approved")
+
+        extra_kwargs = {
+            'approved': {'read_only': True},
+        }
 
     def save(self, **kwargs):
         kwargs["buyer"] = self.fields["buyer"].get_default()
         return super().save(**kwargs)
+
+
