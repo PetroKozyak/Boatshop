@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib import auth
 from django.contrib.auth.models import User
 
 User._meta.get_field("email")._unique = True
@@ -21,7 +20,7 @@ class Boat(models.Model):
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="boats")
     boat = models.CharField(max_length=50)
-    price = models.IntegerField(null=False, blank=True)
+    price = models.FloatField(null=False, blank=True)
 
     def __str__(self):
         return "{}".format(self.boat)
@@ -37,4 +36,3 @@ class OrderBoat(models.Model):
 
     def __str__(self):
         return "{}".format(self.boat)
-
